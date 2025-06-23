@@ -31,11 +31,11 @@ class HomePage extends StatelessWidget {
 }
 
 
-class SecondPage extends StatelessWidget {
+class MealHistoryPage extends StatelessWidget {
   @override
   Widget build(BuildContext context){
     return Scaffold(
-      appBar: CustomAppBar(title: 'test'),
+      appBar: CustomAppBar(title: 'Meal History'),
     );
   }
 }
@@ -49,19 +49,34 @@ class _AddMealPageState extends State<AddMealPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _formController = TextEditingController();
 
+  final TextEditingController _mealController = TextEditingController();
+  final TextEditingController _caloriesController = TextEditingController();
+
+
   @override
   void dispose() {
     _formController.dispose();
+    _mealController.dispose();
+    _caloriesController.dispose();
     super.dispose();
   }
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      // All validations passed, you can process your data.
-      debugPrint('Form submitted with: ${_formController.text}');
-    }
-  }
+void _submitForm() {
+  if (_formKey.currentState!.validate()) {
+    final String meal = _mealController.text;
+    final String calories = _caloriesController.text;
 
+    debugPrint('Meal: $meal, Calories: $calories');
+
+    // TODO: Save to local storage or state management
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Meal "$meal" with $calories calories saved!')),
+    );
+
+    _mealController.clear();
+    _caloriesController.clear();
+  }
+}
 
   
   @override
@@ -76,11 +91,25 @@ class _AddMealPageState extends State<AddMealPage> {
           child: Column(
             children: [
               TextFormField(
+                  controller: _mealController,
                   decoration: InputDecoration(labelText: 'Meal'),
-
+                  validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a meal name';
+                  }
+                  return null;
+                  },
               ),
               TextFormField(
+                  controller: _caloriesController,
                   decoration: InputDecoration(labelText: 'calories'),
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter calories';
+                    }
+                    return null;
+                  },
               ),
           ElevatedButton(
               onPressed: _submitForm,
@@ -92,51 +121,6 @@ class _AddMealPageState extends State<AddMealPage> {
           ),
         ),
       ),
-      /*
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey, // Key to reference the form for validation
-          child: Column(
-            children: [
-              //text form for meal name
-              TextFormField(
-                controller: _formController,
-                decoration: const InputDecoration(
-                  hintText: 'Meals Name',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter some text';
-                  }
-                  return null; // Returns null if the input is valid.
-                },
-              ),
-              //text form for calorie amount
-              TextFormField(
-                controller: _formController,
-                decoration: const InputDecoration(
-                  hintText: 'calories',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter some text2';
-                  }
-                  return null; // Returns null if the input is valid.
-                },
-              ),
-              
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _submitForm,
-                child: const Text('Submit'),
-              ),
-            ],
-          ),
-        ),
-      ),*/
     );
   }
 }
@@ -186,7 +170,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => SecondPage()),
+                  MaterialPageRoute(builder: (context) => MealHistoryPage()),
                 );
               },
             ),
