@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
-import 'dart:io';
+//import 'package:sqflite/sqflite.dart';
+import 'dart:io' ;
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
+import 'package:path_provider/path_provider.dart';
+
+
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -201,7 +205,6 @@ void _submitForm() async {
   }
 }
 
-
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   final String title;
@@ -295,18 +298,35 @@ class MealDatabase {
   Future<Database> get database async {
     if (_database != null) return _database!;
     _database = await _initDB('meals.db');
+    
     return _database!;
   }
 
-  Future<Database> _initDB(String filePath) async {
-    final dbPath = await getDatabasesPath();
-    final path = join(dbPath, filePath);
+ Future<Database> _initDB(String fileName) async {
+  String path;
 
-    return await databaseFactory.openDatabase(path, options: OpenDatabaseOptions(
-  version: 1,
-  onCreate: _createDB,
-));
+  if (kIsWeb) {
+    // IndexedDB store name
+    path = fileName;
+  } else {
+    // On mobile & desktop we want the app’s documents directory
+    final Directory docsDir = await getApplicationDocumentsDirectory();
+    path = join(docsDir.path, fileName);
   }
+
+  // for debugging, run on mobile/desktop to see the real path
+  print('🗄️ Opening DB at: $path');
+
+  return databaseFactory.openDatabase(
+    path,
+    options: OpenDatabaseOptions(
+      version: 1,
+      onCreate: _createDB,
+    ),
+  );
+}
+
+
 
   Future _createDB(Database db, int version) async {
     await db.execute('''
