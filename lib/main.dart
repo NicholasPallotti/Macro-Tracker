@@ -346,7 +346,10 @@ class MealDatabase {
 
   Future<List<Meal>> fetchMeals() async {
     final db = await instance.database;
-    final result = await db.query('meals');
+    final result = await db.query(
+      'meals',
+      orderBy: 'date DESC', // Use 'ASC' if you prefer oldest first
+    );
     return result.map((map) => Meal.fromMap(map)).toList();
   }
 
