@@ -54,7 +54,12 @@ class HomePage extends StatelessWidget {
   }
 }
 
-class MealHistoryPage extends StatelessWidget {
+class MealHistoryPage extends StatefulWidget {
+  @override
+  State<MealHistoryPage> createState() => _MealHistoryPageState();
+}
+
+class _MealHistoryPageState extends State<MealHistoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -99,13 +104,14 @@ class MealHistoryPage extends StatelessWidget {
                   .map((m) => m.calories)
                   .fold<int>(0, (sum, c) => sum + c);
 
+              // Calculate total protien for this date
               final totalProtien = mealsOnDate
                   .map((m) => m.protien)
                   .fold<int>(0, (sum, c) => sum + c);
 
               return ExpansionTile(
                 title: Text(
-                  '$date — $totalCalories kcal - $totalProtien g Protien',
+                  '$date — $totalCalories kcal - $totalProtien g Protein',
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -114,7 +120,17 @@ class MealHistoryPage extends StatelessWidget {
                 children: mealsOnDate.map((meal) {
                   return ListTile(
                     title: Text(meal.name),
-                    subtitle: Text('Calories: ${meal.calories}'),
+                    subtitle: Text('Calories: ${meal.calories} Protein: ${meal.protien}'),
+
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () async {
+                        // your logic here
+                        await MealDatabase.instance.deleteMeal(meal.id!);
+                          setState(() {});
+                      },
+                     
+                    ),
                   );
                 }).toList(),
               );
@@ -125,6 +141,7 @@ class MealHistoryPage extends StatelessWidget {
     );
   }
 }
+
 
 class AddMealPage extends StatefulWidget {
   @override
@@ -435,6 +452,28 @@ Future _createDB(Database db, int version) async {
   Future<void> insertMeal(Meal meal) async {
     final db = await instance.database;
     await db.insert('meals', meal.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
+  }
+
+    /// Deletes a meal by its primary key id.
+  Future<int> deleteMeal(int id) async {
+    final db = await instance.database;
+    return await db.delete(
+      'meals',                  // your table name
+      where: 'id = ?',          // the column to match
+      whereArgs: [id],          // value for the placeholder
+    );
+  }
+
+  /// Updates an existing meal in the database.
+  /// Expects that `meal.id` is non-null and matches an existing row.
+  Future<int> updateMeal(Meal meal) async {
+    final db = await instance.database;
+    return await db.update(
+      'meals',                  // your table name
+      meal.toMap(),             // map of column/value pairs
+      where: 'id = ?',          // only update the row with this id
+      whereArgs: [meal.id],     // pass the id here
+    );
   }
 
   Future<List<Meal>> fetchMeals() async {
