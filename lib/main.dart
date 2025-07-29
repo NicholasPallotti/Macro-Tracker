@@ -99,9 +99,13 @@ class MealHistoryPage extends StatelessWidget {
                   .map((m) => m.calories)
                   .fold<int>(0, (sum, c) => sum + c);
 
+              final totalProtien = mealsOnDate
+                  .map((m) => m.protien)
+                  .fold<int>(0, (sum, c) => sum + c);
+
               return ExpansionTile(
                 title: Text(
-                  '$date — $totalCalories kcal',
+                  '$date — $totalCalories kcal - $totalProtien g Protien',
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
