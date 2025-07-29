@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart';
 //import 'package:sqflite/sqflite.dart';
 import 'dart:io' ;
+import 'package:intl/intl.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
@@ -53,8 +54,13 @@ class HomePage extends StatelessWidget {
   }
 }
 
-class MealHistoryPage extends StatelessWidget {
-   @override
+class MealHistoryPage extends StatefulWidget {
+  @override
+  State<MealHistoryPage> createState() => _MealHistoryPageState();
+}
+
+class _MealHistoryPageState extends State<MealHistoryPage> {
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(title: 'Meal History'),
@@ -70,15 +76,63 @@ class MealHistoryPage extends StatelessWidget {
           }
 
           final meals = snapshot.data!;
+
+          // 1. Group meals by date and compute daily calories
+          final Map<String, List<Meal>> grouped = {};
+          final List<String> dateKeys = [];
+
+          for (var meal in meals) {
+            final dateKey = DateFormat('MMM d').format(meal.date.toLocal());
+
+            if (!grouped.containsKey(dateKey)) {
+              grouped[dateKey] = [];
+              dateKeys.add(dateKey);
+            }
+            grouped[dateKey]!.add(meal);
+          }
+
+          // 2. Build the list of ExpansionTiles with calorie sums
           return ListView.builder(
-            itemCount: meals.length,
-            itemBuilder: (context, index) {
-              final meal = meals[index];
-              return ListTile(
-                title: Text(meal.name),
-                subtitle: Text(
-                  'Calories: ${meal.calories} • Date: ${meal.date.toLocal().toString().split(' ')[0]}',
+            padding: const EdgeInsets.all(8.0),
+            itemCount: dateKeys.length,
+            itemBuilder: (context, i) {
+              final date = dateKeys[i];
+              final mealsOnDate = grouped[date]!;
+
+              // Calculate total calories for this date
+              final totalCalories = mealsOnDate
+                  .map((m) => m.calories)
+                  .fold<int>(0, (sum, c) => sum + c);
+
+              // Calculate total protien for this date
+              final totalProtien = mealsOnDate
+                  .map((m) => m.protien)
+                  .fold<int>(0, (sum, c) => sum + c);
+
+              return ExpansionTile(
+                title: Text(
+                  '$date — $totalCalories kcal - $totalProtien g Protein',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
+                children: mealsOnDate.map((meal) {
+                  return ListTile(
+                    title: Text(meal.name),
+                    subtitle: Text('Calories: ${meal.calories} Protein: ${meal.protien}'),
+
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () async {
+                        // your logic here
+                        await MealDatabase.instance.deleteMeal(meal.id!);
+                          setState(() {});
+                      },
+                     
+                    ),
+                  );
+                }).toList(),
               );
             },
           );
@@ -87,6 +141,7 @@ class MealHistoryPage extends StatelessWidget {
     );
   }
 }
+
 
 class AddMealPage extends StatefulWidget {
   @override
@@ -99,6 +154,9 @@ class _AddMealPageState extends State<AddMealPage> {
   final TextEditingController _formController = TextEditingController();
   final TextEditingController _mealController = TextEditingController();
   final TextEditingController _caloriesController = TextEditingController();
+  final TextEditingController _protienController = TextEditingController();
+  final TextEditingController _fatController = TextEditingController();
+  final TextEditingController _carbsController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
 
 
@@ -108,6 +166,9 @@ class _AddMealPageState extends State<AddMealPage> {
     _formController.dispose();
     _mealController.dispose();
     _caloriesController.dispose();
+    _protienController.dispose();
+    _fatController.dispose();
+    _carbsController.dispose();
     _dateController.dispose();
     super.dispose();
   }
@@ -131,6 +192,9 @@ void _submitForm() async {
     final meal = Meal(
       name: _mealController.text,
       calories: int.parse(_caloriesController.text),
+      protien: int.parse(_protienController.text),
+      fat: int.parse(_fatController.text),
+      carbs: int.parse(_carbsController.text),
       date: DateTime.parse(_dateController.text),
     );
     
@@ -138,6 +202,9 @@ void _submitForm() async {
 
     _mealController.clear();
     _caloriesController.clear();
+    _protienController.clear();
+    _fatController.clear();
+    _carbsController.clear();
     _dateController.clear();
   }
 }
@@ -172,6 +239,39 @@ void _submitForm() async {
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter calories';
+                    }
+                    return null;
+                  },
+              ),
+              TextFormField(
+                  controller: _protienController,
+                  decoration: InputDecoration(labelText: 'protien'),
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter protien';
+                    }
+                    return null;
+                  },
+              ),
+              TextFormField(
+                  controller: _fatController,
+                  decoration: InputDecoration(labelText: 'fat'),
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter fat';
+                    }
+                    return null;
+                  },
+              ),
+              TextFormField(
+                  controller: _carbsController,
+                  decoration: InputDecoration(labelText: 'carbs'),
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter carbs';
                     }
                     return null;
                   },
@@ -266,15 +366,21 @@ class Meal {
   final int? id;
   final String name;
   final int calories;
+  final int protien;
+  final int fat;
+  final int carbs;
   final DateTime date;
 
-  Meal({this.id, required this.name, required this.calories, required this.date});
+  Meal({this.id, required this.name, required this.calories, required this.protien, required this.fat, required this.carbs, required this.date});
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
       'name': name,
       'calories': calories,
+      'protien': protien,
+      'fat': fat,
+      'carbs': carbs,
       'date': date.toIso8601String(), // Store as ISO 8601 string
     };
   }
@@ -284,6 +390,9 @@ class Meal {
       id: map['id'],
       name: map['name'],
       calories: map['calories'],
+      protien: map['protien'],
+      fat: map['fat'],
+      carbs: map['carbs'],
       date: DateTime.parse(map['date']),
     );
   }
@@ -326,14 +435,15 @@ class MealDatabase {
   );
 }
 
-
-
-  Future _createDB(Database db, int version) async {
+Future _createDB(Database db, int version) async {
     await db.execute('''
       CREATE TABLE meals (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         calories INTEGER NOT NULL,
+        protien INTEGER NOT NULL,
+        fat INTEGER NOT NULL,
+        carbs INTEGER NOT NULL,
         date TEXT NOT NULL
       )
     ''');
@@ -344,12 +454,37 @@ class MealDatabase {
     await db.insert('meals', meal.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
+    /// Deletes a meal by its primary key id.
+  Future<int> deleteMeal(int id) async {
+    final db = await instance.database;
+    return await db.delete(
+      'meals',                  // your table name
+      where: 'id = ?',          // the column to match
+      whereArgs: [id],          // value for the placeholder
+    );
+  }
+
+  /// Updates an existing meal in the database.
+  /// Expects that `meal.id` is non-null and matches an existing row.
+  Future<int> updateMeal(Meal meal) async {
+    final db = await instance.database;
+    return await db.update(
+      'meals',                  // your table name
+      meal.toMap(),             // map of column/value pairs
+      where: 'id = ?',          // only update the row with this id
+      whereArgs: [meal.id],     // pass the id here
+    );
+  }
+
   Future<List<Meal>> fetchMeals() async {
     final db = await instance.database;
-    final result = await db.query(
-      'meals',
-      orderBy: 'date DESC', // Use 'ASC' if you prefer oldest first
-    );
+    final result = await db.rawQuery('''
+      SELECT * 
+        FROM meals
+        ORDER BY datetime(date) DESC
+    ''');
+
+    print(result);
     return result.map((map) => Meal.fromMap(map)).toList();
   }
 
