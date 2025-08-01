@@ -82,82 +82,79 @@ void _submitForm() async {
           key: _formKey, // Key to reference the form for validation
           child: Column(
             children: [
+              //Meal Name - Full Width
               TextFormField(
-                  controller: _mealController,
-                  decoration: InputDecoration(labelText: 'Meal'),
-                  validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a meal name';
-                  }
-                  return null;
-                  },
+                controller: _mealController,
+                decoration: InputDecoration(labelText: 'Meal', border: OutlineInputBorder(),),
+                validator: (value) => value == null || value.isEmpty ? 'Please enter a meal name' : null,
               ),
-              TextFormField(
-                  controller: _caloriesController,
-                  decoration: InputDecoration(labelText: 'calories'),
-                  keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter calories';
-                    }
-                    return null;
-                  },
+              SizedBox(height: 16),
+              //Row: Calories & Protien
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _caloriesController,
+                      decoration: InputDecoration(labelText: 'Calories', border: OutlineInputBorder(),),
+                      keyboardType: TextInputType.number,
+                      validator: (value) => value == null || value.isEmpty ? 'Enter calories' : null,
+                    ),
+                  ),
+                  SizedBox(width: 16),
+                  Expanded(
+                    child: TextFormField(
+                      controller: _protienController,
+                      decoration: InputDecoration(labelText: 'Protien', border: OutlineInputBorder(),),
+                      keyboardType: TextInputType.number,
+                      validator: (value) => value == null || value.isEmpty ? 'Enter protien' : null,
+                    ),
+                  ),
+                ],
               ),
-              TextFormField(
-                  controller: _protienController,
-                  decoration: InputDecoration(labelText: 'protien'),
-                  keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter protien';
-                    }
-                    return null;
-                  },
+              SizedBox(height: 16),
+              //Row: Fat & Carbs
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: _fatController,
+                      decoration: InputDecoration(labelText: 'Fat', border: OutlineInputBorder(),),
+                      keyboardType: TextInputType.number,
+                      validator: (value) => value == null || value.isEmpty ? 'Enter fat' : null,
+                    ),
+                  ),
+                  SizedBox(width: 16),
+                  SizedBox(height: 16),
+                  Expanded(
+                    child: TextFormField(
+                      controller: _carbsController,
+                      decoration: InputDecoration(labelText: 'Carbs', border: OutlineInputBorder(),),
+                      keyboardType: TextInputType.number,
+                      validator: (value) => value == null || value.isEmpty ? 'Enter carbs' : null,
+                    ),
+                  ),
+                ],
               ),
-              TextFormField(
-                  controller: _fatController,
-                  decoration: InputDecoration(labelText: 'fat'),
-                  keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter fat';
-                    }
-                    return null;
-                  },
-              ),
-              TextFormField(
-                  controller: _carbsController,
-                  decoration: InputDecoration(labelText: 'carbs'),
-                  keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter carbs';
-                    }
-                    return null;
-                  },
-              ),
+              SizedBox(height: 16),
+              // 📅 Date - Full Width
               TextFormField(
                 controller: _dateController,
                 readOnly: true,
                 decoration: InputDecoration(
                   labelText: 'Date',
                   suffixIcon: Icon(Icons.calendar_today),
+                  border: OutlineInputBorder(),
                 ),
                 onTap: () => _selectDate(context),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please select a date';
-                  }
-                  return null;
-                },
+                validator: (value) => value == null || value.isEmpty ? 'Please select a date' : null,
               ),
-          ElevatedButton(
-              onPressed: _submitForm,
-              child: const Text('Submit'),
-          ),
 
-            ]
-            
+              // 🚀 Submit Button
+              ElevatedButton(
+                onPressed: _submitForm,
+                child: const Text('Submit'),
+              ),
+            ],
           ),
         ),
       ),

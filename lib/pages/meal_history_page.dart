@@ -58,18 +58,84 @@ class _MealHistoryPageState extends State<MealHistoryPage> {
                   .map((m) => m.protien)
                   .fold<int>(0, (sum, c) => sum + c);
 
+              // Calculate total fat for this date
+              final totalFat = mealsOnDate
+                  .map((m) => m.fat)
+                  .fold<int>(0, (sum, c) => sum + c);
+
+              // Calculate total fat for this date
+              final totalCarbs = mealsOnDate
+                  .map((m) => m.carbs)
+                  .fold<int>(0, (sum, c) => sum + c);
+
               return ExpansionTile(
                 title: Text(
-                  '$date — $totalCalories kcal - $totalProtien g Protein',
+                  '$date — Cal: $totalCalories Pro: $totalProtien Fat: $totalFat Carbs: $totalCarbs',
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 children: mealsOnDate.map((meal) {
+                  ListTile(
+                      title: const Text(
+                        'Daily Total',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      ),
+                      subtitle: RichText(
+                        text: TextSpan(
+                          style: DefaultTextStyle.of(context).style,
+                          children: [
+                            TextSpan(text: 'Calories: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                            TextSpan(text: '$totalCalories  '),
+                            TextSpan(text: 'Protein: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                            TextSpan(text: '$totalProtien  '),
+                            TextSpan(text: 'Fat: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                            TextSpan(text: '$totalFat  '),
+                            TextSpan(text: 'Carbs: ', style: TextStyle(fontWeight: FontWeight.bold)),
+                            TextSpan(text: '$totalCarbs'),
+                          ],
+                        ),
+                      ),
+                    );
+
                   return ListTile(
                     title: Text(meal.name),
-                    subtitle: Text('Calories: ${meal.calories} Protein: ${meal.protien}'),
+                    subtitle: RichText(
+                      text: TextSpan(
+                        style: DefaultTextStyle.of(context).style,
+                        children: [
+
+                          //list calories for meal
+                          TextSpan(
+                            text: 'Calories: ',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          TextSpan(text: '${meal.calories}  '),
+
+                          //list protien for meal
+                          TextSpan(
+                            text: 'Protein: ',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          TextSpan(text: '${meal.protien}  '),
+
+                          //list fat for meal
+                          TextSpan(
+                            text: 'Fat: ',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          TextSpan(text: '${meal.fat}  '),
+
+                          //list carbs for meal
+                          TextSpan(
+                            text: 'Carbs: ',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          TextSpan(text: '${meal.carbs}'),
+                        ],
+                      ),
+                    ),
 
                     trailing: IconButton(
                       icon: const Icon(Icons.delete, color: Colors.red),
