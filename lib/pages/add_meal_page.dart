@@ -14,7 +14,7 @@ class _AddMealPageState extends State<AddMealPage> {
   final TextEditingController _formController = TextEditingController();
   final TextEditingController _mealController = TextEditingController();
   final TextEditingController _caloriesController = TextEditingController();
-  final TextEditingController _protienController = TextEditingController();
+  final TextEditingController _proteinController = TextEditingController();
   final TextEditingController _fatController = TextEditingController();
   final TextEditingController _carbsController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
@@ -26,7 +26,7 @@ class _AddMealPageState extends State<AddMealPage> {
     _formController.dispose();
     _mealController.dispose();
     _caloriesController.dispose();
-    _protienController.dispose();
+    _proteinController.dispose();
     _fatController.dispose();
     _carbsController.dispose();
     _dateController.dispose();
@@ -52,7 +52,7 @@ void _submitForm() async {
     final meal = Meal(
       name: _mealController.text,
       calories: int.parse(_caloriesController.text),
-      protien: int.parse(_protienController.text),
+      protein: int.parse(_proteinController.text),
       fat: int.parse(_fatController.text),
       carbs: int.parse(_carbsController.text),
       date: DateTime.parse(_dateController.text),
@@ -62,7 +62,7 @@ void _submitForm() async {
 
     _mealController.clear();
     _caloriesController.clear();
-    _protienController.clear();
+    _proteinController.clear();
     _fatController.clear();
     _carbsController.clear();
     _dateController.clear();
@@ -89,7 +89,7 @@ void _submitForm() async {
                 validator: (value) => value == null || value.isEmpty ? 'Please enter a meal name' : null,
               ),
               SizedBox(height: 16),
-              //Row: Calories & Protien
+              //Row: Calories & protein
               Row(
                 children: [
                   Expanded(
@@ -103,10 +103,10 @@ void _submitForm() async {
                   SizedBox(width: 16),
                   Expanded(
                     child: TextFormField(
-                      controller: _protienController,
-                      decoration: InputDecoration(labelText: 'Protien', border: OutlineInputBorder(),),
+                      controller: _proteinController,
+                      decoration: InputDecoration(labelText: 'protein', border: OutlineInputBorder(),),
                       keyboardType: TextInputType.number,
-                      validator: (value) => value == null || value.isEmpty ? 'Enter protien' : null,
+                      validator: (value) => value == null || value.isEmpty ? 'Enter protein' : null,
                     ),
                   ),
                 ],

@@ -10,19 +10,19 @@ class Meal {
   final int? id;
   final String name;
   final int calories;
-  final int protien;
+  final int protein;
   final int fat;
   final int carbs;
   final DateTime date;
 
-  Meal({this.id, required this.name, required this.calories, required this.protien, required this.fat, required this.carbs, required this.date});
+  Meal({this.id, required this.name, required this.calories, required this.protein, required this.fat, required this.carbs, required this.date});
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
       'name': name,
       'calories': calories,
-      'protien': protien,
+      'protein': protein,
       'fat': fat,
       'carbs': carbs,
       'date': date.toIso8601String(), // Store as ISO 8601 string
@@ -34,7 +34,7 @@ class Meal {
       id: map['id'],
       name: map['name'],
       calories: map['calories'],
-      protien: map['protien'],
+      protein: map['protein'],
       fat: map['fat'],
       carbs: map['carbs'],
       date: DateTime.parse(map['date']),
@@ -85,7 +85,7 @@ Future _createDB(Database db, int version) async {
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         calories INTEGER NOT NULL,
-        protien INTEGER NOT NULL,
+        protein INTEGER NOT NULL,
         fat INTEGER NOT NULL,
         carbs INTEGER NOT NULL,
         date TEXT NOT NULL
@@ -136,4 +136,4 @@ Future _createDB(Database db, int version) async {
     final db = await instance.database;
     db.close();
   }
-}
+} 

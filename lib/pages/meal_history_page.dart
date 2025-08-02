@@ -53,9 +53,9 @@ class _MealHistoryPageState extends State<MealHistoryPage> {
                   .map((m) => m.calories)
                   .fold<int>(0, (sum, c) => sum + c);
 
-              // Calculate total protien for this date
-              final totalProtien = mealsOnDate
-                  .map((m) => m.protien)
+              // Calculate total protein for this date
+              final totalprotein = mealsOnDate
+                  .map((m) => m.protein)
                   .fold<int>(0, (sum, c) => sum + c);
 
               // Calculate total fat for this date
@@ -89,12 +89,12 @@ class _MealHistoryPageState extends State<MealHistoryPage> {
                           ),
                           TextSpan(text: '$totalCalories  '),
 
-                          //list total protien for day
+                          //list total protein for day
                           TextSpan(
                             text: 'Protein: ',
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
-                          TextSpan(text: '$totalProtien  '),
+                          TextSpan(text: '$totalprotein  '),
 
                           //list total fat for day
                           TextSpan(
@@ -129,12 +129,12 @@ class _MealHistoryPageState extends State<MealHistoryPage> {
                           ),
                           TextSpan(text: '${meal.calories}  '),
 
-                          //list protien for meal
+                          //list protein for meal
                           TextSpan(
                             text: 'Protein: ',
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
-                          TextSpan(text: '${meal.protien}  '),
+                          TextSpan(text: '${meal.protein}  '),
 
                           //list fat for meal
                           TextSpan(
